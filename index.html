@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Worthing Mariners · Club Manager</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css" onerror="this.onerror=null;this.href='styles.css'">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -12,6 +12,29 @@
 <body>
   <div id="app"><p class="boot">Cargando…</p></div>
   <div id="toasts"></div>
-  <script type="module" src="js/app.js"></script>
+  <script>
+    // Red de seguridad: si el código falla antes de dibujar la pantalla, mostrar el motivo.
+    function showBootError(msg) {
+      var a = document.getElementById("app");
+      if (!a || !a.querySelector(".boot")) return;
+      a.innerHTML = '<div class="gate"><div class="gate-card"><h1><span class="crest">WM</span> No se pudo cargar</h1>' +
+        '<p class="err" id="bootmsg"></p><p class="muted">Revisa que <code>js/config.js</code> tenga bien la URL y la anon key ' +
+        'de Supabase, y que tengas conexión a internet.</p></div></div>';
+      document.getElementById("bootmsg").textContent = msg;
+    }
+    window.addEventListener("error", function (e) { showBootError(e.message || "Error al cargar el código."); });
+    window.addEventListener("unhandledrejection", function (e) {
+      showBootError(String((e.reason && e.reason.message) || e.reason || "Error desconocido"));
+    });
+    setTimeout(function () { showBootError("La página tardó demasiado en cargar."); }, 10000);
+  </script>
+  <script type="module">
+    // Funciona con los archivos en carpetas (js/app.js) o todos en la raíz (app.js).
+    import("./js/app.js").catch(function () {
+      return import("./app.js");
+    }).catch(function (e) {
+      showBootError("No se encontró app.js o alguno de sus archivos (db.js, util.js, squad.js, importers.js, config.js). Detalle: " + (e && e.message ? e.message : e));
+    });
+  </script>
 </body>
 </html>

@@ -1,19 +1,25 @@
-import { sb, configured, deviceId } from "./db.js";
+import { sb, configured, configProblem, clientError, deviceId } from "./db.js";
 import { $, esc, toast } from "./util.js";
 import { mountSquad } from "./squad.js";
 
 const root = document.getElementById("app");
 
 async function boot() {
-  if (!configured) {
+  if (!configured || !sb) {
     root.innerHTML = `<div class="gate"><div class="gate-card">
       <h1><span class="crest">WM</span> Falta configurar</h1>
-      <p class="muted">Abre <code>js/config.js</code> y pega la URL y la anon key de tu proyecto de Supabase.
-      Luego ejecuta <code>supabase/schema.sql</code> en el SQL Editor.</p></div></div>`;
+      <p class="err">${esc(configProblem || clientError || "Configuración inválida.")}</p>
+      <p class="muted">Abre <code>js/config.js</code> y pega la <b>Project URL</b> y la <b>anon key</b> de tu proyecto de Supabase
+      (Project Settings → API). Luego ejecuta <code>supabase/schema.sql</code> en el SQL Editor.</p></div></div>`;
     return;
   }
   const { data: active, error } = await sb.rpc("gm_is_device_active", { p_device: deviceId });
-  if (error) return fatal(error.message);
+  if (error) {
+    const net = /fetch|network|failed|load/i.test(error.message);
+    return fatal(net
+      ? "No se pudo conectar con Supabase. La URL de js/config.js probablemente está mal escrita o el proyecto está pausado. (" + error.message + ")"
+      : error.message);
+  }
   if (!active) return showActivation();
 
   const { data: { session } } = await sb.auth.getSession();
@@ -111,4 +117,4 @@ function showApp(user) {
 
 sb?.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_OUT") showAuth(); });
 
-boot().catch((e) => { console.error(e); toast(e.message, "err"); });
+boot().catch((e) => { console.error(e); fatal(e.message || String(e)); });
