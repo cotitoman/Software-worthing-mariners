@@ -2,6 +2,7 @@ import { sb, configured, configProblem, clientError, deviceId } from "./db.js";
 import { $, esc, toast } from "./util.js";
 import { mountSquad } from "./squad.js";
 import { mountFinance } from "./finance.js";
+import { mountBoard } from "./board.js";
 
 const root = document.getElementById("app");
 
@@ -102,7 +103,7 @@ function showApp(user) {
       <nav class="main">
         <button data-sec="plantilla" class="on">Plantilla</button>
         <button data-sec="economia">Economía</button>
-        <button disabled title="Próxima etapa">Pizarra táctica <span class="badge">pronto</span></button>
+        <button data-sec="pizarra">Pizarra táctica</button>
         <button disabled title="Próxima etapa">Scouting <span class="badge">pronto</span></button>
       </nav>
       <span class="muted">${esc(user.email)}</span>
@@ -117,10 +118,18 @@ function showApp(user) {
     root.querySelectorAll("[data-sec]").forEach((b) => b.classList.toggle("on", b.dataset.sec === sec));
     const view = $("#view");
     view.innerHTML = "";
+    if (sec === "pizarra") return mountPizarra(view, { sb, user });
     (sec === "economia" ? mountFinance : mountSquad)(view, { sb, user });
   };
   root.querySelectorAll("[data-sec]").forEach((b) => b.addEventListener("click", () => go(b.dataset.sec)));
   go("plantilla");
+}
+
+function mountPizarra(view, ctx, kind = "tactica") {
+  view.innerHTML = `<div class="subtabs"><button data-k="tactica" class="${kind === "tactica" ? "on" : ""}">Pizarra táctica</button>
+    <button data-k="pelota_parada" class="${kind === "pelota_parada" ? "on" : ""}">Jugadas a balón parado</button></div><div id="bd"></div>`;
+  view.querySelectorAll("[data-k]").forEach((b) => b.addEventListener("click", () => mountPizarra(view, ctx, b.dataset.k)));
+  mountBoard($("#bd", view), { ...ctx, kind });
 }
 
 sb?.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_OUT") showAuth(); });

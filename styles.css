@@ -99,3 +99,10 @@ pre.hint{background:var(--navy);padding:.7rem;border-radius:8px;overflow:auto;fo
 .toast{background:var(--navy3);border-left:4px solid var(--teal);padding:.6rem .9rem;border-radius:8px;box-shadow:0 4px 16px #0008;max-width:340px}
 .toast.err{border-color:var(--bad)}
 @media (max-width:600px){main{padding:.6rem}}
+
+/* Pizarra táctica */
+.bd{display:grid;gap:1rem;grid-template-columns:minmax(0,1fr) 320px;align-items:start}
+@media(max-width:1000px){.bd{grid-template-columns:1fr}}
+.bd svg{width:100%;height:auto;display:block;border-radius:12px;border:1px solid var(--line);background:#1f5c3a;user-select:none}
+.bd-side .card{margin-bottom:.8rem}
+.bd-side h3{font-size:1rem}
