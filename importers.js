@@ -98,6 +98,9 @@ export function mountImport(pane, ctx) {
         <p class="muted">Columnas reconocidas (español o inglés): nombre, posición, edad, OVR, potencial, dorsal, contrato, sueldo, valor,
         atributos (RIT/TIR/PAS/REG/DEF/FIS) y estadísticas (PJ, minutos, goles, asistencias, imbatidas). Los jugadores se identifican por nombre.</p>
         <div class="drop"><input type="file" id="file" accept=".csv,.json,text/csv,application/json"></div>
+        <p class="muted" style="margin-top:.6rem"><b>O pega desde Excel / Google Sheets</b> (con la fila de títulos):</p>
+        <textarea id="paste" rows="4" style="width:100%" placeholder="nombre&#9;posicion&#9;edad&#9;ovr"></textarea>
+        <button class="btn ghost sm" id="pasteGo">Revisar lo pegado</button>
         <pre class="hint">nombre,posicion,edad,ovr,pj,goles,asistencias
 J. Smith,ST,24,68,12,7,2</pre>
       </div>
@@ -112,6 +115,11 @@ J. Smith,ST,24,68,12,7,2</pre>
     <div id="review"></div>`;
 
   $("#file", pane).addEventListener("change", (e) => e.target.files[0] && fromFile(e.target.files[0], pane, ctx));
+  $("#pasteGo", pane).addEventListener("click", () => {
+    const t = $("#paste", pane).value.trim();
+    if (!t) return toast("Pega primero las celdas.", "err");
+    showPreview(Papa.parse(t, { header: true, skipEmptyLines: true }).data, pane, ctx);
+  });
   $("#img", pane).addEventListener("change", (e) => e.target.files.length && fromImages([...e.target.files], pane, ctx));
 }
 
@@ -128,6 +136,10 @@ async function fromFile(file, pane, ctx) {
       raw = res.data;
     }
   } catch (e) { return toast("No se pudo leer el archivo: " + e.message, "err"); }
+  showPreview(raw, pane, ctx);
+}
+
+function showPreview(raw, pane, ctx) {
   const rows = raw.map(normalizeRow).filter(Boolean);
   if (!rows.length) return toast("No encontré jugadores. Revisa que exista una columna de nombre.", "err");
 

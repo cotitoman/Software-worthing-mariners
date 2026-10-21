@@ -1,5 +1,6 @@
 import { $, $$, esc, POSITIONS, normPos, toNum, toast, money, per, openModal } from "./util.js";
 import { mountImport } from "./importers.js";
+import { renderSeason, renderLeague, seasonList } from "./seasons.js";
 
 export const ATTRS = [
   ["pace", "RIT"], ["shooting", "TIR"], ["passing", "PAS"],
@@ -15,7 +16,7 @@ const COLORS = ["#19c3c3", "#f5b041", "#ec7063"];
 
 const S = {
   sb: null, user: null, el: null,
-  players: [], matches: [],
+  players: [], matches: [], seasonStats: [], table: [], season: "", noSeasonSql: false, minSeason: "",
   tab: "jugadores", sortK: "overall", sortD: -1, q: "", pos: "",
   cmp: ["", "", ""], chart: null,
 };
@@ -27,14 +28,25 @@ export async function mountSquad(el, { sb, user }) {
 }
 
 async function load() {
-  const [p, m] = await Promise.all([
+  const [p, m, ss, lt] = await Promise.all([
     S.sb.from("gm_player_stats").select("*"),
     S.sb.from("gm_matches").select("*").order("played_on", { ascending: false }),
+    S.sb.from("gm_season_stats").select("*"),
+    S.sb.from("gm_league_table").select("*"),
   ]);
+  S.noSeasonSql = !!(ss.error || lt.error);
+  S.seasonStats = ss.data || [];
+  S.table = lt.data || [];
+  if (!S.season || !seasonList(S).includes(S.season)) S.season = seasonList(S)[0] || defaultSeason();
   if (p.error) toast(p.error.message, "err");
   if (m.error) toast(m.error.message, "err");
   S.players = p.data || [];
   S.matches = m.data || [];
+}
+
+function defaultSeason() {
+  const y = new Date().getFullYear();
+  return `${y}/${String((y + 1) % 100).padStart(2, "0")}`;
 }
 
 async function reload() {
@@ -44,15 +56,20 @@ async function reload() {
 
 const teamMatches = () => Math.max(S.matches.length, ...S.players.map((p) => p.apps || 0), 0);
 
+const ctx = () => ({ sb: S.sb, user: S.user, players: S.players, seasonStats: S.seasonStats, table: S.table,
+  get season() { return S.season; }, set season(v) { S.season = v; }, noSeasonSql: S.noSeasonSql, reload });
+
 /* ======================= Estructura ======================= */
 function render() {
-  const tabs = [["jugadores", "Jugadores"], ["partidos", "Partidos"], ["minutos", "Minutos"], ["comparar", "Comparar"], ["importar", "Importar datos"]];
+  const tabs = [["jugadores", "Jugadores"], ["temporada", "Temporada"], ["liga", "Clasificación"], ["partidos", "Partidos (opcional)"], ["minutos", "Minutos"], ["comparar", "Comparar"], ["importar", "Importar datos"]];
   S.el.innerHTML = `
     <div class="subtabs">${tabs.map(([k, l]) => `<button data-t="${k}" class="${S.tab === k ? "on" : ""}">${l}</button>`).join("")}</div>
     <div id="pane"></div>`;
   $$("[data-t]", S.el).forEach((b) => b.addEventListener("click", () => { S.tab = b.dataset.t; render(); }));
   const pane = $("#pane", S.el);
   if (S.tab === "jugadores") renderPlayers(pane);
+  else if (S.tab === "temporada") renderSeason(pane, ctx());
+  else if (S.tab === "liga") renderLeague(pane, ctx());
   else if (S.tab === "partidos") renderMatches(pane);
   else if (S.tab === "minutos") renderMinutes(pane);
   else if (S.tab === "comparar") renderCompare(pane);
@@ -130,6 +147,10 @@ async function profile(id) {
          ["Goles/PJ", per(p.goals, p.apps)], ["Asist./PJ", per(p.assists, p.apps)], ["Nota media", p.avg_rating ?? "–"]]
         .map(([l, v]) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("")}
     </div>
+    ${S.seasonStats.some((r) => r.player_id === p.id) ? `<div class="card" style="margin-top:1rem"><h3>Por temporada</h3><div class="tw"><table style="min-width:0">
+      <tr><th>Temp.</th><th class="num">PJ</th><th class="num">Min</th><th class="num">G</th><th class="num">A</th><th class="num">PI</th><th class="num">Nota</th></tr>
+      ${S.seasonStats.filter((r) => r.player_id === p.id).sort((a, b) => b.season.localeCompare(a.season)).map((r) => `<tr><td>${esc(r.season)}</td><td class="num">${r.apps}</td><td class="num">${r.minutes}</td><td class="num">${r.goals}</td><td class="num">${r.assists}</td><td class="num">${r.clean_sheets}</td><td class="num">${r.avg_rating ?? "–"}</td></tr>`).join("")}
+      </table></div></div>` : ""}
     <div class="grid g2" style="margin-top:1rem">
       <div class="card"><canvas id="rc" height="220"></canvas></div>
       <div class="card"><h3>Últimos partidos</h3>${last.length ? `<table style="min-width:0">${last.map((r) => `<tr>
@@ -305,9 +326,15 @@ function matchForm() {
 
 /* ======================= Minutos ======================= */
 function renderMinutes(pane) {
-  const tm = teamMatches();
+  const seasons = seasonList(S).filter((s) => S.seasonStats.some((r) => r.season === s));
+  if (S.minSeason && !seasons.includes(S.minSeason)) S.minSeason = "";
+  const ms = S.minSeason;
+  const sMin = new Map(S.seasonStats.filter((r) => r.season === ms).map((r) => [r.player_id, r]));
+  const sApps = Math.max(0, ...[...sMin.values()].map((r) => r.apps));
+  const tm = ms ? (S.table.find((r) => r.season === ms && r.is_mine)?.played || sApps) : teamMatches();
   const avail = tm * 90;
-  const rows = S.players.map((p) => {
+  const rows = S.players.map((p0) => {
+    const p = ms ? { ...p0, minutes: sMin.get(p0.id)?.minutes || 0 } : p0;
     const pct = avail ? Math.min(100, (p.minutes / avail) * 100) : 0;
     const [lo, hi] = ROLES[p.squad_role || "rotacion"].range;
     let flag = ["flag-ok", "En rango"], cls = "";
@@ -320,6 +347,7 @@ function renderMinutes(pane) {
   const alerts = rows.filter((r) => r.flag[0] === "flag-bad" || r.flag[0] === "flag-warn");
 
   pane.innerHTML = `
+    <div class="toolbar"><label style="margin:0">Ver</label><select id="ms"><option value="">Total acumulado</option>${seasons.map((s) => `<option ${s === ms ? "selected" : ""}>${esc(s)}</option>`).join("")}</select></div>
     <div class="card"><b>${tm}</b> partidos · <b>${avail}</b> minutos disponibles por jugador.
       Cada rol tiene un rango objetivo de % de minutos; ajusta el rol de cada jugador aquí abajo.
       ${alerts.length ? `<div style="margin-top:.5rem">${alerts.slice(0, 6).map((r) => `<div class="${r.flag[0]}">• ${esc(r.p.name)}: ${r.flag[1].toLowerCase()} (${r.pct.toFixed(0)}% — objetivo ${r.lo}–${r.hi}%)</div>`).join("")}</div>` : ""}
@@ -330,6 +358,7 @@ function renderMinutes(pane) {
       <td class="num">${r.p.minutes}</td>
       <td><div class="bar"><i class="${r.cls}" style="width:${r.pct}%"></i></div> <span class="muted">${r.pct.toFixed(0)}%</span></td>
       <td>${r.lo}–${r.hi}%</td><td class="${r.flag[0]}">${r.flag[1]}</td></tr>`).join("")}</tbody></table></div>`;
+  $("#ms", pane).addEventListener("change", (e) => { S.minSeason = e.target.value; renderMinutes(pane); });
   $$("[data-role]", pane).forEach((sel) => sel.addEventListener("change", async () => {
     const { error } = await S.sb.from("gm_players").update({ squad_role: sel.value }).eq("id", sel.dataset.role);
     if (error) return toast(error.message, "err");
