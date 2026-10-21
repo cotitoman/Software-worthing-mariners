@@ -1,6 +1,7 @@
 import { sb, configured, configProblem, clientError, deviceId } from "./db.js";
 import { $, esc, toast } from "./util.js";
 import { mountSquad } from "./squad.js";
+import { mountFinance } from "./finance.js";
 
 const root = document.getElementById("app");
 
@@ -99,8 +100,8 @@ function showApp(user) {
     <header class="top">
       <div class="brand"><span class="crest">WM</span> Worthing Mariners · Club Manager</div>
       <nav class="main">
-        <button class="on">Plantilla</button>
-        <button disabled title="Próxima etapa">Economía <span class="badge">pronto</span></button>
+        <button data-sec="plantilla" class="on">Plantilla</button>
+        <button data-sec="economia">Economía</button>
         <button disabled title="Próxima etapa">Pizarra táctica <span class="badge">pronto</span></button>
         <button disabled title="Próxima etapa">Scouting <span class="badge">pronto</span></button>
       </nav>
@@ -112,7 +113,14 @@ function showApp(user) {
     await sb.auth.signOut();
     showAuth();
   });
-  mountSquad($("#view"), { sb, user });
+  const go = (sec) => {
+    root.querySelectorAll("[data-sec]").forEach((b) => b.classList.toggle("on", b.dataset.sec === sec));
+    const view = $("#view");
+    view.innerHTML = "";
+    (sec === "economia" ? mountFinance : mountSquad)(view, { sb, user });
+  };
+  root.querySelectorAll("[data-sec]").forEach((b) => b.addEventListener("click", () => go(b.dataset.sec)));
+  go("plantilla");
 }
 
 sb?.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_OUT") showAuth(); });
