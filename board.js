@@ -1,3 +1,5 @@
+import { activePlayers } from "./players.js";
+
 import { $, $$, esc, toast, openModal } from "./util.js";
 
 /* ===================== Pizarra táctica =====================
@@ -140,7 +142,7 @@ function applyPreset(B, key, against) {
 export async function mountBoard(el, { sb, user, kind }) {
   const isSet = kind === "pelota_parada";
   const S = { B: newState(), tool: "select", sel: null, tmp: null, link: null, voronoi: false, sup: false, undo: [], boards: [], rivals: [], squad: [], frame: -1, playing: false, kind };
-  const { data: sq } = await sb.from("gm_players").select("id,name,position,overall,shirt_number").order("name");
+  const { data: sq } = await activePlayers(sb);
   S.squad = sq || [];
 
   el.innerHTML = `

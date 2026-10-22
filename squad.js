@@ -1,3 +1,5 @@
+import { activePlayers } from "./players.js";
+
 import { $, $$, esc, POSITIONS, normPos, toNum, toast, money, per, openModal } from "./util.js";
 import { mountImport } from "./importers.js";
 import { renderSeason, renderLeague, seasonList } from "./seasons.js";
@@ -29,7 +31,7 @@ export async function mountSquad(el, { sb, user }) {
 
 async function load() {
   const [p, m, ss, lt] = await Promise.all([
-    S.sb.from("gm_player_stats").select("*"),
+    activePlayers(S.sb, "gm_player_stats"),
     S.sb.from("gm_matches").select("*").order("played_on", { ascending: false }),
     S.sb.from("gm_season_stats").select("*"),
     S.sb.from("gm_league_table").select("*"),

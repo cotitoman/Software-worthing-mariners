@@ -5,6 +5,7 @@ import { mountFinance } from "./finance.js";
 import { mountBoard } from "./board.js";
 import { mountScouting } from "./scouting.js";
 import { mountTraining } from "./training.js";
+import { mountPlanning } from "./planning.js";
 
 const root = document.getElementById("app");
 
@@ -108,6 +109,7 @@ function showApp(user) {
         <button data-sec="pizarra">Pizarra táctica</button>
         <button data-sec="scouting">Scouting</button>
         <button data-sec="entrenamientos">Entrenamientos</button>
+        <button data-sec="planificacion">Planificación</button>
       </nav>
       <span class="muted">${esc(user.email)}</span>
       <button class="btn ghost sm" id="out">Cerrar sesión</button>
@@ -124,6 +126,7 @@ function showApp(user) {
     if (sec === "pizarra") return mountPizarra(view, { sb, user });
     if (sec === "scouting") return mountScouting(view, { sb, user });
     if (sec === "entrenamientos") return mountTraining(view, { sb, user });
+    if (sec === "planificacion") return mountPlanning(view, { sb, user });
     (sec === "economia" ? mountFinance : mountSquad)(view, { sb, user });
   };
   root.querySelectorAll("[data-sec]").forEach((b) => b.addEventListener("click", () => go(b.dataset.sec)));

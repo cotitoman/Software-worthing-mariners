@@ -1,3 +1,5 @@
+import { activePlayers } from "./players.js";
+
 import { $, $$, esc, toast, openModal, downloadText, csvCell } from "./util.js";
 
 /* ===================== Entrenamientos y asistencia ===================== */
@@ -26,7 +28,7 @@ const fail = (error) => { if (error) { toast(error.message, "err"); return true;
 /* ---------- carga ---------- */
 async function load() {
   const t = (n) => T.sb.from(n).select("*");
-  const [p, s, e, x, a] = await Promise.all([t("gm_players"), t("gm_training_sessions"), t("gm_exercises"), t("gm_session_exercises"), t("gm_attendance")]);
+  const [p, s, e, x, a] = await Promise.all([activePlayers(T.sb), t("gm_training_sessions"), t("gm_exercises"), t("gm_session_exercises"), t("gm_attendance")]);
   T.noSql = !!(s.error || e.error || x.error || a.error);
   T.players = (p.data || []).sort((u, v) => u.name.localeCompare(v.name));
   T.sessions = s.data || [];

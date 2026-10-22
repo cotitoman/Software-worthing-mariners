@@ -1,3 +1,5 @@
+import { activePlayers } from "./players.js";
+
 import { $, $$, esc, POSITIONS, normPos, toNum, toast, money, openModal } from "./util.js";
 
 /* ===================== Scouting =====================
@@ -61,7 +63,7 @@ async function fetchAll(table) {
   return { data: out };
 }
 async function load() {
-  const [sc, sq] = await Promise.all([fetchAll("gm_scouts"), S.sb.from("gm_players").select("*")]);
+  const [sc, sq] = await Promise.all([fetchAll("gm_scouts"), activePlayers(S.sb)]);
   S.noSql = !!sc.error;
   S.scouts = (sc.data || []).map((p) => derive({ ...p, _src: p.source === "real" ? "Vida real" : "FC 27" }));
   S.squad = (sq.data || []).map((p) => derive({ ...p, source: "squad", _src: "Mi plantilla", club: "Worthing Mariners", apps: null, minutes: null, goals: null, assists: null }));

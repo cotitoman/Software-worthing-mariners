@@ -1,3 +1,5 @@
+import { activePlayers } from "./players.js";
+
 import { $, $$, esc, toNum, toast, money, openModal } from "./util.js";
 
 /* ===================== Economía =====================
@@ -38,7 +40,7 @@ async function load() {
   const t = (n) => F.sb.from(n).select("*");
   const [s, a, e, i, p, pr, cs] = await Promise.all([
     t("gm_fin_seasons"), t("gm_fin_areas"), t("gm_fin_expenses"), t("gm_fin_income"),
-    t("gm_players"), t("gm_stadium_projects"), t("gm_club_settings"),
+    activePlayers(F.sb), t("gm_stadium_projects"), t("gm_club_settings"),
   ]);
   F.noSql = !!(s.error || a.error || e.error || i.error || pr.error || cs.error);
   F.seasons = (s.data || []).sort((x, y) => y.name.localeCompare(x.name));
