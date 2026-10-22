@@ -69,3 +69,15 @@ export function openModal(html, { wide = false } = {}) {
   bg.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", close));
   return { el: bg.firstElementChild, close };
 }
+
+// Descarga un texto como archivo (CSV, JSON…)
+export function downloadText(filename, text, mime = "text/csv;charset=utf-8") {
+  const blob = new Blob(["﻿" + text], { type: mime });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+export const csvCell = (v) => { const s = String(v ?? ""); return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };

@@ -106,3 +106,15 @@ pre.hint{background:var(--navy);padding:.7rem;border-radius:8px;overflow:auto;fo
 .bd svg{width:100%;height:auto;display:block;border-radius:12px;border:1px solid var(--line);background:#1f5c3a;user-select:none}
 .bd-side .card{margin-bottom:.8rem}
 .bd-side h3{font-size:1rem}
+
+/* Calendario de entrenamientos */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal-h{text-align:center;color:var(--muted);font-size:.8rem;padding:.2rem}
+.cal-d{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.3rem;min-height:96px;cursor:pointer;overflow:hidden}
+.cal.week .cal-d{min-height:240px}
+.cal-d:hover{border-color:var(--teal)}
+.cal-d.today{outline:2px solid var(--teal)}
+.cal-d.other{opacity:.45}
+.cal-n{font-size:.75rem;color:var(--muted);text-align:right}
+.cal-s{background:var(--navy3);border-radius:6px;padding:.2rem .35rem;margin-top:.25rem;font-size:.78rem;line-height:1.25;overflow:hidden}
+@media(max-width:700px){.cal-d{min-height:64px;padding:.15rem}.cal-s{font-size:.65rem}.cal.week .cal-d{min-height:130px}}
