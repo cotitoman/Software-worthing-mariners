@@ -7,6 +7,7 @@ import { mountScouting } from "./scouting.js";
 import { mountTraining } from "./training.js";
 import { mountPlanning } from "./planning.js";
 import { mountYouth } from "./youth.js";
+import { mountRecommend } from "./recommend.js";
 
 const root = document.getElementById("app");
 
@@ -112,6 +113,7 @@ function showApp(user) {
         <button data-sec="entrenamientos">Entrenamientos</button>
         <button data-sec="planificacion">Planificación</button>
         <button data-sec="cantera">Cantera y cesiones</button>
+        <button data-sec="recomendaciones">Recomendaciones</button>
       </nav>
       <span class="muted">${esc(user.email)}</span>
       <button class="btn ghost sm" id="out">Cerrar sesión</button>
@@ -130,6 +132,7 @@ function showApp(user) {
     if (sec === "entrenamientos") return mountTraining(view, { sb, user });
     if (sec === "planificacion") return mountPlanning(view, { sb, user });
     if (sec === "cantera") return mountYouth(view, { sb, user });
+    if (sec === "recomendaciones") return mountRecommend(view, { sb, user });
     (sec === "economia" ? mountFinance : mountSquad)(view, { sb, user });
   };
   root.querySelectorAll("[data-sec]").forEach((b) => b.addEventListener("click", () => go(b.dataset.sec)));

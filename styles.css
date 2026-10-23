@@ -118,3 +118,8 @@ pre.hint{background:var(--navy);padding:.7rem;border-radius:8px;overflow:auto;fo
 .cal-n{font-size:.75rem;color:var(--muted);text-align:right}
 .cal-s{background:var(--navy3);border-radius:6px;padding:.2rem .35rem;margin-top:.25rem;font-size:.78rem;line-height:1.25;overflow:hidden}
 @media(max-width:700px){.cal-d{min-height:64px;padding:.15rem}.cal-s{font-size:.65rem}.cal.week .cal-d{min-height:130px}}
+
+/* Etiquetas de origen del dato (recomendaciones) */
+.tag-m,.tag-c{display:inline-block;font-size:.68rem;padding:.05rem .4rem;border-radius:99px;margin-right:.2rem;border:1px solid}
+.tag-m{color:#7fb3ff;border-color:#7fb3ff}
+.tag-c{color:#f5b041;border-color:#f5b041}
