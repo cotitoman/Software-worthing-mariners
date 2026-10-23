@@ -28,7 +28,8 @@ const fail = (error) => { if (error) { toast(error.message, "err"); return true;
 const endYear = (s) => { const m = /^(\d{4})/.exec(s || ""); return m ? Number(m[1]) + 1 : null; };
 const plan = () => P.plans.find((p) => p.season === P.season) || null;
 const stOf = (id) => P.status.get(id) || { availability: "disponible", transferable: false, left_club: null };
-const active = () => P.players.filter((p) => !stOf(p.id).left_club);
+// La cantera (rol juvenil) no cuenta para la plantilla del primer equipo hasta que se promociona
+const active = () => P.players.filter((p) => !stOf(p.id).left_club && p.squad_role !== "juvenil");
 const suggest = (f) => { const d = { GK: 2 }; for (const [pos, n] of Object.entries(FORMATIONS[f] || FORMATIONS["4-4-2"])) d[pos] = n + 1; return d; };
 const desired = () => { const p = plan(); return p && Object.keys(p.desired || {}).length ? p.desired : suggest(p?.formation || "4-4-2"); };
 
