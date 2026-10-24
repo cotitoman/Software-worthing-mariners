@@ -35,3 +35,25 @@ Las estadísticas importadas se guardan como "acumulado previo". Si ya registras
 - La clave de activación y el bloqueo de registro se validan en Supabase (funciones SQL y trigger), no solo en la página.
 - Cada usuario solo ve y modifica sus propios datos (RLS).
 - La `anon key` es pública por diseño; no pegues nunca la `service_role key` en la web.
+
+## Flujo manual de fin de temporada (Etapa 1b)
+Ejecuta `supabase/schema_temporadas.sql` una vez. Luego, al terminar cada temporada:
+- **Temporada**: rellena PJ, minutos, goles, asistencias, imbatidas y nota de cada jugador (o pega desde Excel).
+- **Clasificación**: pega o escribe la tabla final de la liga (los puntos se calculan si faltan).
+- **Jugadores → Importar**: nombres, atributos y datos generales por CSV/JSON o pegando desde Excel.
+Los totales de cada jugador = acumulado previo + temporadas anotadas (+ partidos si los registras; usa solo una vía por temporada).
+
+## Economía (Etapa 2)
+Ejecuta `supabase/schema_economia.sql`. Incluye presupuesto por temporada y áreas, gastos e ingresos, contratos y sueldos (editables) y reformas del estadio con precios orientativos.
+
+## Pizarra táctica (Etapa 3)
+Ejecuta `supabase/schema_pizarra.sql`. Incluye pizarra con formaciones, alineación rival, balón, pases, desmarques, zonas, uniones, Voronoi, superioridades, animación por fotogramas, guardado y jugadas a balón parado.
+
+## Scouting (Etapa 4)
+Ejecuta `supabase/schema_scouting.sql`. Carga tu base de jugadores (FC 27 y vida real) en Scouting → Importar (CSV, JSON o pegando desde Excel; modelo en `ejemplo_scouting.csv`). Incluye filtros avanzados, búsqueda por similitud, lista de seguimiento, gráficos scatter, radar y comparación con tu plantilla con percentiles.
+
+## Scouting: base FC 27 completa (CSV de 60 columnas)
+1. En Supabase → SQL Editor ejecuta `supabase/schema_scouting_fc27.sql` (solo añade columnas; se puede repetir).
+2. Scouting → Importar → sube el CSV. Se detectan `player_id, common_name, first_name, last_name, overall_rating, position, alternate_positions, club, league, nationality, gender, preferred_foot, skill_moves, weak_foot, height_cm, weight_kg, birthdate, playstyles`, los 6 atributos principales, los 37 atributos detallados, `edition` y `snapshot_date`. La vista previa indica qué columnas se reconocieron, cuáles faltan y cuáles se ignoran.
+3. Reimportar actualiza al jugador (mismo `player_id` y edición) sin perder la lista de seguimiento. La edad se calcula desde `birthdate` (respecto a `snapshot_date`).
+4. Buscar: filtros nuevos por género, edición, fecha de datos, estilos de juego, filigranas, pie malo, altura, peso, posiciones alternativas y mín./máx. de cada atributo detallado; columnas extra elegibles en la tabla. Comparar: radar por grupo de atributos y filas de ficha. La similitud usa los atributos detallados cuando existen.
