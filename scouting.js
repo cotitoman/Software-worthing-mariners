@@ -186,6 +186,7 @@ function renderSearch(pane) {
     <div class="card"><div class="row">
       <div><label>Nombre o club</label><input id="q" value="${esc(f.q)}"></div>
       <div><label>Fuente</label><select id="source"><option value="">Todas</option><option value="fc27" ${f.source === "fc27" ? "selected" : ""}>FC 27</option><option value="real" ${f.source === "real" ? "selected" : ""}>Vida real</option></select></div>
+      <div><label>Género</label><select id="gender">${optList(distinct("gender"), f.gender, "Todos")}</select></div>
       <div><label>Nacionalidad</label><input id="nation" value="${esc(f.nation)}"></div>
       <div><label>Club / liga</label><input id="club" value="${esc(f.club)}"></div>
     </div>
@@ -199,8 +200,7 @@ function renderSearch(pane) {
     <label style="display:inline-flex;gap:.25rem;margin:0;color:inherit"><input type="checkbox" id="altpos" style="width:auto" ${f.altPos ? "checked" : ""}>Incluir jugadores que también juegan en esas posiciones (posiciones alternativas)</label>
     <label>Atributos mínimos</label>
     <div class="row">${ATTRS.map(([k, l]) => `<div><label>${l} ≥</label><input data-a="${k}" type="number" min="0" max="99" value="${esc(f.attr[k] ?? "")}"></div>`).join("")}</div>
-    <details ${S.f.styles || S.f.gender || S.f.edition || S.f.snapshot || [f.smMin, f.wfMin, f.hMin, f.hMax, f.wMin, f.wMax].some(Boolean) ? "open" : ""}><summary><b>Ficha FC 27</b> · género, edición, estilos de juego, filigranas, pie malo, físico</summary><div class="row">
-      <div><label>Género</label><select id="gender">${optList(distinct("gender"), f.gender, "Todos")}</select></div>
+    <details ${S.f.styles || S.f.edition || S.f.snapshot || [f.smMin, f.wfMin, f.hMin, f.hMax, f.wMin, f.wMax].some(Boolean) ? "open" : ""}><summary><b>Ficha FC 27</b> · edición, estilos de juego, filigranas, pie malo, físico</summary><div class="row">
       <div><label>Edición</label><select id="edition">${optList(distinct("edition"), f.edition, "Todas")}</select></div>
       <div><label>Fecha de los datos</label><select id="snapshot">${optList(distinct("snapshot_date"), f.snapshot, "Todas")}</select></div>
       <div><label>Estilos de juego (separa con coma)</label><input id="styles" value="${esc(f.styles)}" placeholder="p. ej. Finesse Shot, Rapid"></div>
