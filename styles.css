@@ -123,3 +123,26 @@ pre.hint{background:var(--navy);padding:.7rem;border-radius:8px;overflow:auto;fo
 .tag-m,.tag-c{display:inline-block;font-size:.68rem;padding:.05rem .4rem;border-radius:99px;margin-right:.2rem;border:1px solid}
 .tag-m{color:#7fb3ff;border-color:#7fb3ff}
 .tag-c{color:#f5b041;border-color:#f5b041}
+
+/* ---- Vídeo táctico ---- */
+.vgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:1rem;align-items:start}
+@media(max-width:1000px){.vgrid{grid-template-columns:1fr}}
+.vtools{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem}
+.vtools .btn.on{background:var(--teal);color:#042}
+@media(max-width:1300px){.vtl{display:none}}
+.vprops{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:.6rem}
+.vprops select{max-width:170px}
+.vsw{display:inline-block;width:1.3rem;height:1.3rem;border-radius:50%;border:2px solid #fff4;padding:0;cursor:pointer;vertical-align:middle}
+.vsw.on{border-color:#fff;box-shadow:0 0 0 2px var(--teal)}
+.vstage{position:relative;background:#000;width:100%;border-radius:10px;overflow:hidden;touch-action:none}
+.vstage video{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.vstage svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.vnofile{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:1rem;z-index:1}
+.vctrl{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.5rem}
+.vctrl select{max-width:80px}
+.vtick{position:relative;height:10px;margin:.3rem 0 .6rem;background:var(--navy3);border-radius:5px}
+.vtk{position:absolute;top:0;height:10px;min-width:5px;border-radius:3px;cursor:pointer}
+.vlist{max-height:55vh;overflow:auto}
+.vitem{display:flex;gap:.5rem;align-items:flex-start;padding:.4rem;border:1px solid var(--line);border-radius:8px;margin-bottom:.35rem;cursor:pointer}
+.vitem.on{border-color:var(--teal)}.vitem.dim{opacity:.55}
+.vitem img{width:90px;border-radius:5px}

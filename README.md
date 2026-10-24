@@ -57,3 +57,12 @@ Ejecuta `supabase/schema_scouting.sql`. Carga tu base de jugadores (FC 27 y vida
 2. Scouting → Importar → sube el CSV. Se detectan `player_id, common_name, first_name, last_name, overall_rating, position, alternate_positions, club, league, nationality, gender, preferred_foot, skill_moves, weak_foot, height_cm, weight_kg, birthdate, playstyles`, los 6 atributos principales, los 37 atributos detallados, `edition` y `snapshot_date`. La vista previa indica qué columnas se reconocieron, cuáles faltan y cuáles se ignoran.
 3. Reimportar actualiza al jugador (mismo `player_id` y edición) sin perder la lista de seguimiento. La edad se calcula desde `birthdate` (respecto a `snapshot_date`).
 4. Buscar: filtros nuevos por género, edición, fecha de datos, estilos de juego, filigranas, pie malo, altura, peso, posiciones alternativas y mín./máx. de cada atributo detallado; columnas extra elegibles en la tabla. Comparar: radar por grupo de atributos y filas de ficha. La similitud usa los atributos detallados cuando existen.
+
+## Vídeo táctico (módulo 5)
+1. Supabase → SQL Editor → ejecuta `supabase/schema_video.sql` (tablas + bucket privado `gm-videos`).
+2. Sube `js/video.js`, `js/video_draw.js`, `js/video_store.js`, `js/app.js` y `css/styles.css`.
+3. Menú **Vídeo táctico** → *Nuevo proyecto* → título, vínculo (partido/entrenamiento/jugador) y archivo.
+- Herramientas: flecha, línea, curva, desmarque, círculo, elipse, rectángulo, zona de presión, espacio libre, línea defensiva, lápiz, texto, número y etiqueta. Cada anotación tiene color, grosor, relleno e intervalo de tiempo; se pueden mover, redimensionar, duplicar, ocultar, borrar, deshacer/rehacer. Guardado automático.
+- Jugadas: marca momentos o clips (tipo, jugador, lista, comentario, miniatura anotada), filtra, reproduce clips y exporta CSV. Escenas: guarda un grupo de anotaciones y reinsértalo en cualquier vídeo.
+- Captura PNG con anotaciones y exportación WebM en tiempo real (Chrome/Edge/Firefox; la pestaña debe estar visible).
+- Almacenamiento: el vídeo se guarda en el navegador del dispositivo (IndexedDB); opcionalmente en la nube (máx. 50 MB en plan gratuito). En otro dispositivo, abre el proyecto y adjunta el mismo archivo o tráelo de la nube.
